@@ -45,7 +45,7 @@ CONCLUÍDO
 
 RN05(RF13):O professor não poderá alocar um aluno para uma 
 sala que não tenha sido criada por ele.
-
+CONCLUÍDO
 RF14:Permitir que professor remova o aluno de uma sala
 CONCLUÍDO 
 
