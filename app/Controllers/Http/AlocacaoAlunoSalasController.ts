@@ -3,59 +3,44 @@ import AlocacaoAlunoSala from 'App/Models/AlocacaoAlunoSala'
 import CadastroSala from 'App/Models/CadastroSala'
 import Cadastro from 'App/Models/CadastroAluno'
 import CadastroProfessor from 'App/Models/CadastroProfessor'
-// import { validarAcesso } from 'App/middleware/authTestProfessor'
 
+//dados fake auth
+const dadosDoProfessor = [
+  { email: 'professor@gmail.com' },
+]
+//fim dados fake auth
 
 export default class AlocacaoAlunoSalasController {
 
-  private async validarAcesso(email: string, matricula: string, response: HttpContextContract['response']) {
+  private async validarAcesso(email: string, response: HttpContextContract['response']) {
     const cadastroExistente = await CadastroProfessor.query()
-      .where('matricula', matricula)
+      // .where('matricula', matricula)
       .andWhere('email', email)
       .first();
 
     if (!cadastroExistente) {
       response.status(401).json({
-        error: 'Acesso negado. Dados inválidos.',
+        error: 'Acesso negado. Sem permissão.',
       });
       return false;
     }
-
     return true;
   }
 
 
   public async create({ request, response }: HttpContextContract) {
-
-    const dadosDoProfessor = [
-      { matricula: 'S1ZUH2B', email: 'professor@gmail.com' },
-    ]
-
     const matricula = request.input('matricula');
     const numerosala = request.input('numerosala');
 
-
-    //simulando validacao professor
+    // Verificar se o professor tem permissão para alocar o aluno
     for (const dados of dadosDoProfessor) {
-      const acessoValido = await this.validarAcesso(dados.email, dados.matricula, response);
+      const acessoValido = await this.validarAcesso(dados.email, response);
       if (!acessoValido) {
-        return; // Retorna para interromper a criação da sala
+        return;
       }
     }
 
-    //fim simulacao
-
-    const existingAlocacao = await AlocacaoAlunoSala.query()
-      .where('matricula', matricula)
-      .andWhere('numerosala', numerosala)
-      .first();
-
-    if (existingAlocacao) {
-      return response.status(400).send({
-        error: 'A matricula já está alocada nesta sala.',
-      });
-    }
-
+    // Verificar se a sala já está com a capacidade máxima
     const sala = await CadastroSala.findBy('numerosala', numerosala);
 
     if (!sala) {
@@ -67,9 +52,22 @@ export default class AlocacaoAlunoSalasController {
     const capacidadeSala = sala.capacidade;
     const alocacoesSala = await sala.related('alocacoes').query();
 
-    if (alocacoesSala.length >= capacidadeSala) {
+    if (alocacoesSala.length === capacidadeSala) {
       return response.status(400).send({
         error: 'A capacidade da sala já foi atingida.',
+      });
+    }
+    await CadastroSala.query().where('numerosala', numerosala).update({ disponibilidade: false });
+
+
+    const existingAlocacao = await AlocacaoAlunoSala.query()
+      .where('matricula', matricula)
+      .where('numerosala', numerosala)
+      .first();
+
+    if (existingAlocacao) {
+      return response.status(400).send({
+        error: 'O aluno já está alocado nesta sala.',
       });
     }
 
@@ -83,11 +81,11 @@ export default class AlocacaoAlunoSalasController {
   }
 
 
+
   public async delete({ params, response }: HttpContextContract) {
     const matricula = params.matricula;
     const numerosala = params.numerosala;
 
-    // Busca a alocação do aluno e sala pelos parametros, revisar melhoria de consultas
     const alocacao = await AlocacaoAlunoSala.query()
       .where('matricula', matricula)
       .andWhere('numerosala', numerosala)
@@ -95,26 +93,37 @@ export default class AlocacaoAlunoSalasController {
 
     if (!alocacao) {
       return response.status(404).send({
-        error: 'Alocação não encontrada.',
+        error: 'Aluno(a) não encontrado(a).',
       });
     }
 
     try {
       await alocacao.delete();
 
+      const sala = await CadastroSala.findBy('numerosala', numerosala);
+      const capacidadeSala = sala?.capacidade || 0;
+      const alocacoesSala = await sala?.related('alocacoes').query();
+
+      if (alocacoesSala !== undefined && alocacoesSala.length < capacidadeSala) {
+
+        await CadastroSala.query().where('numerosala', numerosala).update({ disponibilidade: true });
+      }
+
       return response.status(200).send({
-        message: 'Alocação removida com sucesso.',
+        message: 'Aluno(a) removido(a) com sucesso.',
       });
     } catch (error) {
-
       return response.status(500).send({
-        error: 'Erro ao excluir a alocação.',
+        error: 'Erro ao excluir aluno(a).',
       });
     }
   }
 
 
+
+
   public async getAllByStudent({ params, response }: HttpContextContract) {
+
     const matricula = params.matricula;
 
     const aluno = await Cadastro.findBy('matricula', matricula);
@@ -133,8 +142,8 @@ export default class AlocacaoAlunoSalasController {
 
     const salasData = dataOne.map((alocacao) => {
       return {
-        numerosala: alocacao.numerosala
-        // professor: dadosDoProfessor[0].email
+        numerosala: alocacao.numerosala,
+        professor: dadosDoProfessor[0].email
       };
     });
 

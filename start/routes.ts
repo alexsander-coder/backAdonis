@@ -38,12 +38,12 @@ Route.group(() => {
   Route.post('/alocacao', 'AlocacaoAlunoSalasController.create')
 
   //mostrar para o estudante cada sala que ele está inscrito passando sua matricula para retorno dos dados
-  Route.get('/alocacao/estudante/:matricula', 'AlocacaoAlunoSalasController.getAllByStudent')
+  Route.get('/alocacao/aluno/:matricula', 'AlocacaoAlunoSalasController.getAllByStudent')
 
   //mostrar todos os alunos em cada sala, passando o numero da sala para retorno de dados
   Route.get('/alocacao/sala/:numerosala', 'AlocacaoAlunoSalasController.getAllByRoom')
 
   //remover aluno de uma sala passando matricula e numero da sala a ser removido
-  Route.delete('/alocacao/estudante/:matricula/sala/:numerosala', 'AlocacaoAlunoSalasController.delete');
+  Route.delete('/alocacao/aluno/:matricula/sala/:numerosala', 'AlocacaoAlunoSalasController.delete');
 
 }).prefix('/api')

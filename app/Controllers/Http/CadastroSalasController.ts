@@ -2,36 +2,44 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import CadastroSala from 'App/Models/CadastroSala'
 import CadastroProfessor from 'App/Models/CadastroProfessor'
 
+//dados fake auth
+const dadosDoProfessor = [
+  { email: 'professor@gmail.com' },
+]
+//fim dados fake auth
 
 export default class CadastroSalasController {
-  private async validarAcesso({ email }: any, response: any) {
-
+  private async validarAcesso(email: string, response: HttpContextContract['response']) {
     const cadastroExistente = await CadastroProfessor.query()
-      .where('email', email)
-      .first()
+      // .where('matricula', matricula)
+      .andWhere('email', email)
+      .first();
 
     if (!cadastroExistente) {
       response.status(401).json({
         error: 'Acesso negado. Dados inválidos.',
-      })
+      });
       return false;
     }
+
     return true;
   }
-
 
   public async store({ request, response }: HttpContextContract) {
     const { numerosala, capacidade, disponibilidade } = request.body();
 
-    const dadosDoProfessor = [
-      { email: 'professors@gmail.com' },
-    ];
 
+
+    //simulando validacao professor
     for (const dados of dadosDoProfessor) {
-      await this.validarAcesso(dados, response);
+      const acessoValido = await this.validarAcesso(dados.email, response);
+      if (!acessoValido) {
+        return;
+      }
     }
+    //fim simulacao
 
-    // Verificar se o número da sala já está sendo usado
+
     const salaExistente = await CadastroSala.findBy('numerosala', numerosala);
 
     if (salaExistente) {
@@ -58,13 +66,14 @@ export default class CadastroSalasController {
   public async update({ params, request, response }: HttpContextContract) {
     const { numerosala, capacidade, disponibilidade } = request.body();
 
-    const dadosDoProfessor = [
-      { nome: 'Alex', email: 'professor@gmail.com', matricula: 'TXR428' },
-    ]
-
+    //simulando validacao professor
     for (const dados of dadosDoProfessor) {
-      await this.validarAcesso(dados, response)
+      const acessoValido = await this.validarAcesso(dados.email, response);
+      if (!acessoValido) {
+        return;
+      }
     }
+    //fim simulacao
 
     const cadastroExistente = await CadastroSala.query()
       .where('numerosala', numerosala)
@@ -93,19 +102,19 @@ export default class CadastroSalasController {
 
   public async show({ params, response }: HttpContextContract) {
 
-    const dadosDoProfessor = [
-      { nome: 'Alex', email: 'professor@gmail.com', matricula: 'TXR428' },
-    ]
-
+    //simulando validacao professor
     for (const dados of dadosDoProfessor) {
-      await this.validarAcesso(dados, response)
+      const acessoValido = await this.validarAcesso(dados.email, response);
+      if (!acessoValido) {
+        return;
+      }
     }
-
+    //fim simulacao
     const cadastro = await CadastroSala.find(params.id);
 
     if (!cadastro) {
       return response.status(404).json({
-        error: 'Cadastro aluno não encontrado',
+        error: 'Sala não encontrada',
       });
     }
 
@@ -116,14 +125,14 @@ export default class CadastroSalasController {
 
   public async destroy({ params, response }: HttpContextContract) {
 
-    const dadosDoProfessor = [
-      { nome: 'Alex', email: 'professor@gmail.com', matricula: 'TXR428' },
-    ]
-
+    //simulando validacao professor
     for (const dados of dadosDoProfessor) {
-      await this.validarAcesso(dados, response)
+      const acessoValido = await this.validarAcesso(dados.email, response);
+      if (!acessoValido) {
+        return;
+      }
     }
-
+    //fim simulacao
     const cadastro = await CadastroSala.find(params.id);
 
     if (!cadastro) {
@@ -138,8 +147,6 @@ export default class CadastroSalasController {
       message: 'Sala excluída com sucesso',
     };
   }
-
-
 
   public async index() {
     const cadastros = await CadastroSala.all()

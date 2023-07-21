@@ -2,10 +2,9 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import CadastroProfessor from 'App/Models/CadastroProfessor';
 
 export default class AuthVerify {
-  public async validarAcesso(email: string, matricula: string, response: HttpContextContract['response']) {
+  public async validarAcesso(email: string, response: HttpContextContract['response']) {
     const cadastroExistente = await CadastroProfessor.query()
-      .where('matricula', matricula)
-      .andWhere('email', email)
+      .where('email', email)
       .first();
 
     if (!cadastroExistente) {
@@ -14,7 +13,6 @@ export default class AuthVerify {
       });
       return false;
     }
-
     return true;
   }
 }
