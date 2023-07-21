@@ -1,0 +1,58 @@
+RF01:Permitir que aluno se cadastre na aplicação
+CONCLUÍDO
+
+RN01(RF01):Deve ser coletado do aluno os seguintes dados:
+Nome, e-mail, matrícula, data de nascimento.
+CONCLUÍDO
+
+RF02:Permitir que aluno edite seus dados de cadastro
+CONCLUÍDO
+RF03:Permitir que aluno exclua seus dados de cadastro
+CONCLUÍDO
+RF04:Permitir que aluno consulte seus dados de cadastro
+CONCLUÍDO
+RF05:Permitir que professor se cadastre na aplicação
+CONCLUÍDO
+RN02(RF05):Deve ser coletado do professor os seguintes dados:
+Nome, e-mail, matrícula, data de nascimento.
+CONCLUÍDO
+RF06:Permitir que professor edite seus dados de cadastro
+CONCLUÍDO
+RF07:Permitir que professor exclua seus dados de cadastro
+CONCLUÍDO
+RF08:Permitir que professor consulte seus dados de cadastro
+CONCLUÍDO
+
+RF09:Permitir que professor cadastre uma nova sala
+CONCLUÍDO
+RN03(RF09):Deve ser coletado da sala: 
+Número da sala, capacidade de alunos, 
+disponibilidade(Se pode alocar aluno ou não).
+CONCLUÍDO
+
+RF10:Permitir que professor edite os dados de umasala
+CONCLUÍDO
+RF11:Permitir que professor exclua os dados de uma sala
+CONCLUÍDO
+RF12:Permitir que professor consulte os dados de uma sala
+CONCLUÍDO
+RF13:Permitir que professor aloque um aluno em uma sala
+CONCLUÍDO
+RN03(RF13):A sala não pode possuir o mesmo aluno mais de uma vez.
+CONCLUÍDO
+RN04(RF13):A sala não pode exceder sua capacidade de alunos.
+CONCLUÍDO
+
+RN05(RF13):O professor não poderá alocar um aluno para uma 
+sala que não tenha sido criada por ele.
+
+RF14:Permitir que professor remova o aluno de uma sala
+CONCLUÍDO 
+
+RF15:Permitir que professor consulte todos os alunos de uma sala
+CONCLUÍDO
+RF16:Permitir que aluno consulte todas as salas que deverá comparecer
+CONCLUÍDO
+RN06(RF16):Deverá ser retornado:Nome do aluno, array de objetos
+com nome do professor e o número da sala.
+CONCLUÍDO
