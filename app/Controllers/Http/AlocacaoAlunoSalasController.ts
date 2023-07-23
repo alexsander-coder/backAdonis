@@ -43,9 +43,19 @@ export default class AlocacaoAlunoSalasController {
     // Verificar se a sala já está com a capacidade máxima
     const sala = await CadastroSala.findBy('numerosala', numerosala);
 
+
+    const matriculaExist = await Cadastro.findBy('matricula', matricula);
+
+
     if (!sala) {
       return response.status(400).send({
         error: 'Sala não encontrada.',
+      });
+    }
+
+    if (!matriculaExist) {
+      return response.status(400).send({
+        error: 'Matricula não encontrada.',
       });
     }
 
@@ -82,9 +92,8 @@ export default class AlocacaoAlunoSalasController {
 
 
 
-  public async delete({ params, response }: HttpContextContract) {
-    const matricula = params.matricula;
-    const numerosala = params.numerosala;
+  public async delete({ request, response }: HttpContextContract) {
+    const { matricula, numerosala } = request.body();
 
     const alocacao = await AlocacaoAlunoSala.query()
       .where('matricula', matricula)
@@ -105,7 +114,6 @@ export default class AlocacaoAlunoSalasController {
       const alocacoesSala = await sala?.related('alocacoes').query();
 
       if (alocacoesSala !== undefined && alocacoesSala.length < capacidadeSala) {
-
         await CadastroSala.query().where('numerosala', numerosala).update({ disponibilidade: true });
       }
 
@@ -122,9 +130,14 @@ export default class AlocacaoAlunoSalasController {
 
 
 
-  public async getAllByStudent({ params, response }: HttpContextContract) {
+  public async getAllByStudent({ request, response }: HttpContextContract) {
+    const { matricula } = request.only(['matricula']);
 
-    const matricula = params.matricula;
+    if (!matricula) {
+      return response.status(400).send({
+        error: 'A matrícula do aluno não foi fornecida.',
+      });
+    }
 
     const aluno = await Cadastro.findBy('matricula', matricula);
 
@@ -134,7 +147,9 @@ export default class AlocacaoAlunoSalasController {
       });
     }
 
-    const dataOne = await AlocacaoAlunoSala.query().where('matricula', matricula).preload('cadastroSala');
+    const dataOne = await AlocacaoAlunoSala.query()
+      .where('matricula', matricula)
+      .preload('cadastroSala');
 
     const alunoData = {
       nome: aluno.nome,
@@ -153,7 +168,19 @@ export default class AlocacaoAlunoSalasController {
   }
 
   public async getAllByRoom({ params }: HttpContextContract) {
-    const numerosala = params.numerosala
-    return await AlocacaoAlunoSala.query().where('numerosala', numerosala)
+    const numerosala = params.numerosala;
+
+    const alocacoesSala = await AlocacaoAlunoSala.query()
+      .where('numerosala', numerosala)
+      .preload('cadastro');
+
+    const data = alocacoesSala.map((alocacao) => {
+      return {
+        nome: alocacao.cadastro.nome,
+        matricula: alocacao.matricula,
+      };
+    });
+
+    return data;
   }
 }

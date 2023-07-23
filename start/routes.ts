@@ -34,16 +34,21 @@ Route.group(() => {
   Route.resource('/sala', 'CadastroSalasController').apiOnly()
 
 
+  // Route.post('/sala', 'CadastroSalasController.store', )
+  // Route.put('/alterarsala/:id', 'CadastroSalasController.update', )
+
+
+
   //alocacao de alunos para as salas
-  Route.post('/alocacao', 'AlocacaoAlunoSalasController.create')
+  Route.post('/alocar', 'AlocacaoAlunoSalasController.create')
 
   //mostrar para o estudante cada sala que ele está inscrito passando sua matricula para retorno dos dados
-  Route.get('/alocacao/aluno/:matricula', 'AlocacaoAlunoSalasController.getAllByStudent')
+  Route.post('/alocacao/alunosalas', 'AlocacaoAlunoSalasController.getAllByStudent')
 
   //mostrar todos os alunos em cada sala, passando o numero da sala para retorno de dados
   Route.get('/alocacao/sala/:numerosala', 'AlocacaoAlunoSalasController.getAllByRoom')
 
   //remover aluno de uma sala passando matricula e numero da sala a ser removido
-  Route.delete('/alocacao/aluno/:matricula/sala/:numerosala', 'AlocacaoAlunoSalasController.delete');
+  Route.delete('/alocacao/removeraluno', 'AlocacaoAlunoSalasController.delete');
 
 }).prefix('/api')
